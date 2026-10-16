@@ -23,6 +23,18 @@ services:
       UPLOAD_DIR: /data/uploads
       IMAGE_OPTIMIZER: /app/tools/optimize_images.py
     volumes: [uploads:/data/uploads]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python3",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8081/api/health', timeout=3)",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
     depends_on:
       db: { condition: service_healthy }
   web:
