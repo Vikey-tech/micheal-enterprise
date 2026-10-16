@@ -343,7 +343,10 @@ func (a *API) stats(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if service.Can(u, "chat") {
-		a.Repo.DB.QueryRow(r.Context(), "SELECT count(*) FROM conversations WHERE status='open'").Scan(&n)
+		if e := a.Repo.DB.QueryRow(r.Context(), "SELECT count(*) FROM conversations WHERE status='open'").Scan(&n); e != nil {
+			a.dbError(w, e)
+			return
+		}
 		out["conversations"] = n
 	}
 	JSON(w, 200, out)
@@ -367,7 +370,10 @@ func (a *API) enquiry(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var exists bool
-	a.Repo.DB.QueryRow(r.Context(), "SELECT EXISTS(SELECT 1 FROM vehicles WHERE id=$1 AND (data->>'published')::boolean)", b.VehicleID).Scan(&exists)
+	if e := a.Repo.DB.QueryRow(r.Context(), "SELECT EXISTS(SELECT 1 FROM vehicles WHERE id=$1 AND (data->>'published')::boolean)", b.VehicleID).Scan(&exists); e != nil {
+		a.dbError(w, e)
+		return
+	}
 	if !exists {
 		fail(w, 404, "Vehicle not found")
 		return

@@ -1,20 +1,203 @@
-'use client';
-import Link from 'next/link';
-import {useState,useEffect,createContext,useContext} from 'react';
-import {Sun,Moon,Menu,X,ArrowUpRight,Car,LogOut} from 'lucide-react';
-import {api,money} from './api';
-import {ChatWidget} from './chat';
-const Context=createContext(null);
-export const useApp=()=>useContext(Context);
-export function Site({children}){
- const [user,setUser]=useState(null),[ready,setReady]=useState(false),[dark,setDark]=useState(false),[menu,setMenu]=useState(false),[toast,setToast]=useState('');
- useEffect(()=>{setDark(document.documentElement.dataset.theme==='dark');api('/auth/me').then(setUser).catch(()=>{}).finally(()=>setReady(true))},[]);
- useEffect(()=>{if(toast){const t=setTimeout(()=>setToast(''),5000);return()=>clearTimeout(t)}},[toast]);
- function toggle(){const value=!dark;setDark(value);document.documentElement.dataset.theme=value?'dark':'light';try{localStorage.setItem('theme',value?'dark':'light')}catch{}}
- async function logout(){try{await api('/auth/logout',{method:'POST'});setUser(null);location.href='/'}catch(e){setToast(e.message)}}
- const links=<><Link href="/vehicles">Our collection</Link><Link href="/dealer">Meet the dealer</Link>{user?.role!=='customer'&&user&&<Link href="/dashboard">Dashboard</Link>}{!user?<Link href="/login">Sign in <ArrowUpRight size={14} className="inline"/></Link>:<button onClick={logout} className="flex gap-2 items-center">Sign out <LogOut size={14}/></button>}</>;
- return <Context.Provider value={{user,setUser,ready,notify:setToast}}><div className="border-b border-[var(--line)]"><div className="shell flex justify-between py-2 text-[10px] tracking-[.18em] uppercase muted"><span>Thoughtfully selected. Personally delivered.</span><span className="hidden sm:block">The next chapter of your journey</span></div></div><header className="border-b border-[var(--line)]"><div className="shell flex items-center justify-between h-24 gap-5"><Link href="/" aria-label="MICHEAL ENTERPRISE home"><span className="block text-xl tracking-[.16em] serif">MICHEAL</span><span className="block text-[9px] tracking-[.45em] mt-1">ENTERPRISE</span></Link><nav className="desktop-nav flex items-center gap-9 text-xs">{links}</nav><div className="flex gap-4"><button onClick={toggle} aria-label={dark?'Switch to light mode':'Switch to dark mode'} className="p-2">{dark?<Sun size={19}/>:<Moon size={19}/>}</button><button className="mobile-nav p-2" aria-label="Toggle navigation" aria-expanded={menu} onClick={()=>setMenu(!menu)}>{menu?<X/>:<Menu/>}</button></div></div>{menu&&<nav onClick={()=>setMenu(false)} className="shell pb-6 flex flex-wrap gap-6 text-sm">{links}</nav>}</header><main>{children}</main><footer className="border-t border-[var(--line)] mt-24 py-12"><div className="shell flex justify-between gap-8 flex-wrap"><div><p className="serif text-2xl">MICHEAL ENTERPRISE</p><p className="muted text-sm mt-3">Good cars. Honest conversations. A personal touch.</p></div><div className="text-sm muted flex gap-6"><Link href="/vehicles">Collection</Link><Link href="/dealer">Contact & dealer</Link></div><p className="muted text-xs w-full">© {new Date().getFullYear()} MICHEAL ENTERPRISE. Vehicle availability and prices are confirmed by the dealership. No online payments are collected.</p></div></footer><ChatWidget/>{toast&&<div role="status" className="fixed top-5 left-1/2 -translate-x-1/2 z-[100] panel shadow-lg max-w-[90vw]">{toast}<button aria-label="Dismiss notification" onClick={()=>setToast('')} className="ml-5">×</button></div>}</Context.Provider>
+"use client";
+import Link from "next/link";
+import { useState, useEffect, createContext, useContext } from "react";
+import { Sun, Moon, Menu, X, ArrowUpRight, Car, LogOut } from "lucide-react";
+import { api, money } from "./api";
+import { ChatWidget } from "./chat";
+const Context = createContext(null);
+export const useApp = () => useContext(Context);
+export function Site({ children }) {
+  const [user, setUser] = useState(null),
+    [ready, setReady] = useState(false),
+    [dark, setDark] = useState(false),
+    [menu, setMenu] = useState(false),
+    [toast, setToast] = useState("");
+  useEffect(() => {
+    setDark(document.documentElement.dataset.theme === "dark");
+    api("/auth/me")
+      .then(setUser)
+      .catch(() => {})
+      .finally(() => setReady(true));
+  }, []);
+  useEffect(() => {
+    if (toast) {
+      const t = setTimeout(() => setToast(""), 5000);
+      return () => clearTimeout(t);
+    }
+  }, [toast]);
+  function toggle() {
+    const value = !dark;
+    setDark(value);
+    document.documentElement.dataset.theme = value ? "dark" : "light";
+    try {
+      localStorage.setItem("theme", value ? "dark" : "light");
+    } catch {}
+  }
+  async function logout() {
+    try {
+      await api("/auth/logout", { method: "POST" });
+      setUser(null);
+      location.href = "/";
+    } catch (e) {
+      setToast(e.message);
+    }
+  }
+  const links = (
+    <>
+      <Link href="/vehicles">Our collection</Link>
+      <Link href="/dealer">Meet the dealer</Link>
+      {user?.role !== "customer" && user && (
+        <Link href="/dashboard">Dashboard</Link>
+      )}
+      {!user ? (
+        <Link href="/login">
+          Sign in <ArrowUpRight size={14} className="inline" />
+        </Link>
+      ) : (
+        <button onClick={logout} className="flex gap-2 items-center">
+          Sign out <LogOut size={14} />
+        </button>
+      )}
+    </>
+  );
+  return (
+    <Context.Provider value={{ user, setUser, ready, notify: setToast }}>
+      <div className="border-b border-[var(--line)]">
+        <div className="shell flex justify-between py-2 text-[10px] tracking-[.18em] uppercase muted">
+          <span>Thoughtfully selected. Personally delivered.</span>
+          <span className="hidden sm:block">
+            The next chapter of your journey
+          </span>
+        </div>
+      </div>
+      <header className="border-b border-[var(--line)]">
+        <div className="shell flex items-center justify-between h-24 gap-5">
+          <Link href="/" aria-label="MICHEAL ENTERPRISE home">
+            <span className="block text-xl tracking-[.16em] serif">
+              MICHEAL
+            </span>
+            <span className="block text-[9px] tracking-[.45em] mt-1">
+              ENTERPRISE
+            </span>
+          </Link>
+          <nav className="desktop-nav flex items-center gap-9 text-xs">
+            {links}
+          </nav>
+          <div className="flex gap-4">
+            <button
+              onClick={toggle}
+              aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+              className="p-2"
+            >
+              {dark ? <Sun size={19} /> : <Moon size={19} />}
+            </button>
+            <button
+              className="mobile-nav p-2"
+              aria-label="Toggle navigation"
+              aria-expanded={menu}
+              onClick={() => setMenu(!menu)}
+            >
+              {menu ? <X /> : <Menu />}
+            </button>
+          </div>
+        </div>
+        {menu && (
+          <nav
+            onClick={() => setMenu(false)}
+            className="shell pb-6 flex flex-wrap gap-6 text-sm"
+          >
+            {links}
+          </nav>
+        )}
+      </header>
+      <main>{children}</main>
+      <footer className="border-t border-[var(--line)] mt-24 py-12">
+        <div className="shell flex justify-between gap-8 flex-wrap">
+          <div>
+            <p className="serif text-2xl">MICHEAL ENTERPRISE</p>
+            <p className="muted text-sm mt-3">
+              Good cars. Honest conversations. A personal touch.
+            </p>
+          </div>
+          <div className="text-sm muted flex gap-6">
+            <Link href="/vehicles">Collection</Link>
+            <Link href="/dealer">Contact & dealer</Link>
+          </div>
+          <p className="muted text-xs w-full">
+            © {new Date().getFullYear()} MICHEAL ENTERPRISE. Vehicle
+            availability and prices are confirmed by the dealership. No online
+            payments are collected.
+          </p>
+        </div>
+      </footer>
+      <ChatWidget />
+      {toast && (
+        <div
+          role="status"
+          className="fixed top-5 left-1/2 -translate-x-1/2 z-[100] panel shadow-lg max-w-[90vw]"
+        >
+          {toast}
+          <button
+            aria-label="Dismiss notification"
+            onClick={() => setToast("")}
+            className="ml-5"
+          >
+            ×
+          </button>
+        </div>
+      )}
+    </Context.Provider>
+  );
 }
-export function VehicleCard({vehicle:v}){return <Link href={'/vehicles/'+v.id} className="car-card block"><div className="car-photo relative">{v.images?.[0]?<img src={v.images[0]} alt={v.title} loading="lazy"/>:<Car size={76} strokeWidth={1} className="muted"/>}<span className="badge absolute top-4 left-4">{v.status}</span>{v.featured&&<span className="badge absolute top-4 right-4">Selected</span>}</div><div className="p-6"><p className="eyebrow mb-3">{v.make} · {v.year}</p><h3>{v.title}</h3><p className="muted text-xs mt-3">{v.mileage.toLocaleString()} km <span className="mx-2">·</span> {v.transmission} <span className="mx-2">·</span> {v.fuel}</p><div className="flex justify-between items-center mt-6 pt-5 border-t border-[var(--line)]"><strong className="text-lg">{money(v.price)}</strong><ArrowUpRight size={21}/></div></div></Link>}
-export function Skeletons(){return <div className="grid-cars" aria-label="Loading vehicles" role="status">{[1,2,3].map(n=><div key={n} className="skeleton h-80"/>)}</div>}
-export function Empty({title='Your next car is on its way',children}){return <div className="panel text-center py-16"><Car className="mx-auto mb-5 muted" size={48} strokeWidth={1}/><h3>{title}</h3><p className="muted mt-3 text-sm">{children||'Our collection is being prepared. Chat with our team about what you are looking for.'}</p></div>}
+export function VehicleCard({ vehicle: v }) {
+  return (
+    <Link href={"/vehicles/" + v.id} className="car-card block">
+      <div className="car-photo relative">
+        {v.images?.[0] ? (
+          <img src={v.images[0]} alt={v.title} loading="lazy" />
+        ) : (
+          <Car size={76} strokeWidth={1} className="muted" />
+        )}
+        <span className="badge absolute top-4 left-4">{v.status}</span>
+        {v.featured && (
+          <span className="badge absolute top-4 right-4">Selected</span>
+        )}
+      </div>
+      <div className="p-6">
+        <p className="eyebrow mb-3">
+          {v.make} · {v.year}
+        </p>
+        <h3>{v.title}</h3>
+        <p className="muted text-xs mt-3">
+          {v.mileage.toLocaleString()} km <span className="mx-2">·</span>{" "}
+          {v.transmission} <span className="mx-2">·</span> {v.fuel}
+        </p>
+        <div className="flex justify-between items-center mt-6 pt-5 border-t border-[var(--line)]">
+          <strong className="text-lg">{money(v.price)}</strong>
+          <ArrowUpRight size={21} />
+        </div>
+      </div>
+    </Link>
+  );
+}
+export function Skeletons() {
+  return (
+    <div className="grid-cars" aria-label="Loading vehicles" role="status">
+      {[1, 2, 3].map((n) => (
+        <div key={n} className="skeleton h-80" />
+      ))}
+    </div>
+  );
+}
+export function Empty({ title = "Your next car is on its way", children }) {
+  return (
+    <div className="panel text-center py-16">
+      <Car className="mx-auto mb-5 muted" size={48} strokeWidth={1} />
+      <h3>{title}</h3>
+      <p className="muted mt-3 text-sm">
+        {children ||
+          "Our collection is being prepared. Chat with our team about what you are looking for."}
+      </p>
+    </div>
+  );
+}

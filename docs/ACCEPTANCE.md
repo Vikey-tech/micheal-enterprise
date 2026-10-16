@@ -6,7 +6,7 @@
 - PostgreSQL integration test: registration cannot supply an administrator role; customer cannot edit cars; manager cannot grant permissions; unpublished cars are hidden; publishing works; enquiries persist; customer cannot read another customer's conversation; owner gets a live WebSocket event; manager reply remains in history; permission revocation blocks access; corrupt uploads are rejected; valid image crosses Go → Python → public WebP; logout invalidates the session.
 - Python resizing, metadata removal, unsupported/corrupt file and size rejection.
 - Next.js production compilation and static route generation.
-- Docker image builds in CI.
+- Docker image builds and Compose startup in CI; production HTTP smoke checks cover public pages, the floating widget, one-time administrator setup/refusal, owner login, authenticated statistics and Origin rejection.
 
 Local Go tests skip PostgreSQL integration unless `TEST_DATABASE_URL` is configured. A passing local run alone does not establish database integration success; inspect the CI backend job.
 
